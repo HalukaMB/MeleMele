@@ -88,6 +88,7 @@ DATABASES = {
 from django.utils.translation import ugettext_lazy as _
 LANGUAGE_CODE = 'en-us'
 USE_I18N = True
+
 LANGUAGES = (
     ('en', _('English')),
     ('ca', _('Catalan')),
@@ -96,8 +97,17 @@ LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )
 
-TIME_ZONE = 'UTC'
 
+import datetime
+from django.utils.timezone import utc
+
+now_naive = datetime.datetime.now()
+now_aware = datetime.datetime.utcnow().replace(tzinfo=utc)
+USE_L10N = True
+
+TIME_ZONE = 'Europe/Madrid'
+
+USE_TZ = True
 
 
 USE_L10N = True
