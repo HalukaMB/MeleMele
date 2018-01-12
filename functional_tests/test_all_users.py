@@ -2,6 +2,7 @@
 from selenium import webdriver
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.utils.translation import activate
 
 
 class HomeNewVisitorTest(StaticLiveServerTestCase):
@@ -9,8 +10,10 @@ class HomeNewVisitorTest(StaticLiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Firefox()
         self.browser.implicitly_wait(3)
+        activate('en')
 
     def tearDown(self):
+
         self.browser.quit()
 
     def get_full_url(self, namespace):
@@ -20,7 +23,21 @@ class HomeNewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.get_full_url("home"))
         self.assertIn("TaskBuster", self.browser.title)
 
+    def test_home_files(self):
+        self.browser.get(self.live_server_url + "/robots.txt")
+        self.assertNotIn("Not Found", self.browser.title)
+        self.browser.get(self.live_server_url + "/humans.txt")
+        self.assertNotIn("Not Found", self.browser.title)
+
     def test_h1_css(self):
         self.browser.get(self.get_full_url("home"))
         h1 = self.browser.find_element_by_tag_name("h1")
         self.assertEqual(h1.value_of_css_property("color"),"rgb(200, 50, 255)")
+
+    def test_internationalization(self):
+        for lang, h1_text in [('en', 'Welcome to TaskBuster!'),
+                                    ('ca', 'Benvingut a TaskBuster!')]:
+            activate(lang)
+            self.browser.get(self.get_full_url("home"))
+            h1 = self.browser.find_element_by_tag_name("h1")
+            self.assertEqual(h1.text, h1_text)
